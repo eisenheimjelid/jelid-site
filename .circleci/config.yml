@@ -5,7 +5,6 @@ orbs:
   cloudrun: circleci/gcp-cloud-run@1.0.2
 
 jobs:
-  
   frontend_build_and_deploy:
     docker:
       - image: 'cimg/base:stable'
