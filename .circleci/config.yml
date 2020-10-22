@@ -79,7 +79,8 @@ jobs:
     steps:
       - run: 
           command: |
-            cp /tmp/bash_env.txt $BASH_ENV
+            ls -la /tmp 
+            ls -la /tmp 
             source $BASH_ENV
       - run:
           name: echo endpoint
