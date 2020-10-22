@@ -79,7 +79,7 @@ jobs:
     steps:
       - run: 
           command: |
-            cp /tmp/workspace/bash_env.txt $BASH_ENV
+            cp /tmp/bash_env.txt $BASH_ENV
             source $BASH_ENV
       - run:
           name: echo endpoint
