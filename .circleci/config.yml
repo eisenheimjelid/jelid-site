@@ -70,8 +70,8 @@ jobs:
       - image: cimg/base:2020.10
       
     steps:
-      # - attach_workspace:
-      #     at: /tmp
+      - attach_workspace:
+          at: /tmp
       # - run: cat /tmp/persist-vars >> $BASH_ENV
       - run: source $BASH_ENV
       - run: echo $GCP_ENDPOINT
