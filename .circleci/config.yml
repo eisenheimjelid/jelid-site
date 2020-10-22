@@ -3,13 +3,19 @@ version: 2.1
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
   cloudrun: circleci/gcp-cloud-run@1.0.2
+  pfe: pantheon-systems/front-end@0.3.0
 
 jobs:
   frontend_build_and_deploy:
     docker:
-      - image: 'cimg/base:stable'
+      - image: quay.io/pantheon-public/build-tools-ci:6.x
     steps:
       - checkout
+      - run:
+        # Set TERMINUS_ENV and related environment variables.
+        # https://github.com/pantheon-systems/docker-build-tools-ci/blob/6.x/scripts/set-environment
+          name: setup-environment-vars
+          command: /build-tools-ci/scripts/set-environment
       - cloudrun/init
       - setup_remote_docker
       - run:
@@ -27,7 +33,7 @@ jobs:
             gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
             --no-traffic --revision-suffix dev-${CIRCLE_SHA1:0:7} \
-            --update-env-vars BACKEND_SITE=_TERMINUS_SITE,BACKEND_ENV=dev
+            --update-env-vars BACKEND_URL=${DEV_SITE_URL}
       - run:
           name: Update traffic labels
           command: | 

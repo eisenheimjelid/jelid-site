@@ -14,8 +14,7 @@ FROM node:12-alpine
 WORKDIR /app
 
 # Default variables (this change on runtime depending the deployment)
-ENV BACKEND_ENV=""
-ENV BACKEND_SITE=""
+ENV BACKEND_URL=""
 
 EXPOSE 8080
 
