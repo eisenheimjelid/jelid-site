@@ -7,62 +7,60 @@ orbs:
 jobs:
   frontend_build_and_deploy:
     docker:
-      #- image: quay.io/pantheon-public/build-tools-ci:6.x
-      - image: cimg/base:2020.10
+      - image: quay.io/pantheon-public/build-tools-ci:6.x
+      # - image: cimg/base:2020.10
     steps:
-      # - checkout
-      # - gcp-cli/install:
-      #     version: "315.0.0"
-      # - gcp-cli/initialize
-      # - run:
-      #     command: |
-      #       export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-      #       gcloud components install beta && gcloud components update
-      #     name: Prep Cloud Run components
-      # - run:
-      #     name: Derive additional environment variables
-      #     command: /build-tools-ci/scripts/set-environment
-      # - setup_remote_docker
-      # - run:
-      #     name: Authenticate docker registry
-      #     command: gcloud beta auth configure-docker ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev
-      # - run:
-      #     name: Build and deploy docker image
-      #     command: | 
-      #       cd frontity 
-      #       docker build -t ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} .
-      #       docker push ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7}
-      # - run:
-      #     name: Deploy to cloud run
-      #     command: | 
-      #       gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-      #       --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-      #       --no-traffic --revision-suffix dev-${CIRCLE_SHA1:0:7} \
-      #       --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
-      # - run:
-      #     name: Update traffic labels
-      #     command: | 
-      #       gcloud beta run services update-traffic ${TERMINUS_SITE} \
-      #       --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-      #       --update-tags ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
+      - checkout
+      - gcp-cli/install:
+          version: "315.0.0"
+      - gcp-cli/initialize
+      - run:
+          command: |
+            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+            gcloud components install beta && gcloud components update
+          name: Prep Cloud Run components
+      - run:
+          name: Derive additional environment variables
+          command: /build-tools-ci/scripts/set-environment
+      - setup_remote_docker
+      - run:
+          name: Authenticate docker registry
+          command: gcloud beta auth configure-docker ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev
+      - run:
+          name: Build and deploy docker image
+          command: | 
+            cd frontity 
+            docker build -t ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} .
+            docker push ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7}
+      - run:
+          name: Deploy to cloud run
+          command: | 
+            gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+            --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+            --no-traffic --revision-suffix dev-${CIRCLE_SHA1:0:7} \
+            --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
+      - run:
+          name: Update traffic labels
+          command: | 
+            gcloud beta run services update-traffic ${TERMINUS_SITE} \
+            --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+            --update-tags ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
 
-      #       gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
+            gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
 
-      # - run:
-      #     name: Test deployed service
-      #     command: | 
-      #       GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
-      #       GCP_ENDPOINT=https://${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
-      #       curl -s $GCP_ENDPOINT
-      #       echo ${GCP_ENDPOINT} is ready
-      #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> $BASH_ENV
-      
-      - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/new-env-vars
+      - run:
+          name: Test deployed service
+          command: | 
+            GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
+            GCP_ENDPOINT=https://${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
+            curl -s $GCP_ENDPOINT
+            echo ${GCP_ENDPOINT} is ready
+            echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> /tmp/persist-vars
           
       - persist_to_workspace:
           root: /tmp
           paths:
-            - new-env-vars
+            - persist-vars
 
 
   connecting_node_bridge:
@@ -74,7 +72,8 @@ jobs:
       - attach_workspace:
           at: /tmp
       - run: cat /tmp/new-env-vars >> $BASH_ENV
-      - run: cat $BASH_ENV
+      - run: source $BASH_ENV
+      - run: printenv
 
       # - run: source $BASH_ENV
       # - run:
