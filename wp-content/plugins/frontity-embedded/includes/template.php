@@ -3,7 +3,25 @@
 /**
  * Plugin settings. Edit them to match your Frontity server configuration.
  */
-$frontity_server = 'http://localhost:3000';
+
+/*PANTHEON connnection*/
+
+if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
+  $secrets_file = WP_CONTENT_DIR . '/uploads/private/secrets.json';
+  if ( $secrets_file ) {
+		$json_data = json_decode( $secrets_file, true );
+    $frontity_server = $json_data['frontend_url'] ? $json_data['frontend_url'] : false;
+    echo $frontity_server;
+	}
+}
+else{
+  $frontity_server = 'http://localhost:3000';  
+}
+
+/***********************************************************************/
+
+
+// $frontity_server = 'http://localhost:3000';
 
 /**
  * Alternatively, you can use environment variables.
