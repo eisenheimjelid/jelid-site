@@ -59,18 +59,18 @@ jobs:
       #       curl -s $GCP_ENDPOINT
       #       echo ${GCP_ENDPOINT} is ready
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> /tmp/persist-vars
-      - persist_to_workspace:
-          root: /tmp
-          paths:
-            - persist-vars
+      # - persist_to_workspace:
+      #     root: /tmp
+      #     paths:
+      #       - persist-vars
 
 
   connecting_node_bridge:
     docker:
       - image: quay.io/pantheon-public/build-tools-ci:6.x
     steps:
-      - attach_workspace:
-          at: /tmp
+      # - attach_workspace:
+      #     at: /tmp
       - gcp-cli/install:
           version: "315.0.0"
       - gcp-cli/initialize
