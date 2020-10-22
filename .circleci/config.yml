@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
   gcp-cli: circleci/gcp-cli@1.8.5
-  pfe: pantheon-systems/front-end@0.3.0
 
 jobs:
   frontend_build_and_deploy:
@@ -11,7 +10,9 @@ jobs:
       - image: 'octahedroid/docker-static-build-tools'
     steps:
       - checkout
-      - pfe/set-terminus-env
+      - run:
+          name: Derive additional environment variables
+          command: /build-tools-ci/scripts/set-environment
       - gcp-cli/initialize
       - setup_remote_docker
       - run:
