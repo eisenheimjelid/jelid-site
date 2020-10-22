@@ -57,14 +57,13 @@ jobs:
       #       echo ${GCP_ENDPOINT} is ready
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> $BASH_ENV
       
-      - run: cp $BASH_ENV bash_env.txt
-      - run: echo "export GCP_ENDPOINT=FOO" >> bash_env.txt
+      - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/new-env-vars
           
 
       - persist_to_workspace:
-          root: .
+          root: /tmp
           paths:
-            - bash_env.txt
+            - new-env-vars
 
 
   connecting_node_bridge:
@@ -74,12 +73,12 @@ jobs:
       
     steps:
       - attach_workspace:
-          at: /tmp/workspace
-      - run: cp /tmp/workspace/bash_env.txt $BASH_ENV
-      - run: source $BASH_ENV
-      - run:
-          name: echo endpoint
-          command: echo $GCP_ENDPOINT
+          at: /tmp
+      - run: cat /tmp/new-env-vars
+      # - run: source $BASH_ENV
+      # - run:
+      #     name: echo endpoint
+      #     command: echo $GCP_ENDPOINT
       # - run:
       #     name: Derive additional environment variables
       #     command: /build-tools-ci/scripts/set-environment
