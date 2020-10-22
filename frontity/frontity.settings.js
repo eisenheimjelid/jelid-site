@@ -1,3 +1,8 @@
+const env = process.env.BACKEND_ENV;
+const site = process.env.BACKEND_SITE;
+const url = `https://${env}-${site}.pantheonsite.io`;
+const api = `${url}/wp-json`;
+
 const settings = {
   "name": "frontity",
   "state": {
@@ -45,7 +50,7 @@ const settings = {
       "name": "@frontity/wp-source",
       "state": {
         "source": {
-          "api": "`${process.env.BACKEND_URL}wp-json`"
+          "api": api
         }
       }
     },

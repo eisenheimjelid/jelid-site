@@ -8,14 +8,10 @@ orbs:
 jobs:
   frontend_build_and_deploy:
     docker:
-      - image: quay.io/pantheon-public/build-tools-ci:6.x
+      - image: 'octahedroid/docker-static-build-tools'
     steps:
       - checkout
-      - run:
-        # Set TERMINUS_ENV and related environment variables.
-        # https://github.com/pantheon-systems/docker-build-tools-ci/blob/6.x/scripts/set-environment
-          name: setup-environment-vars
-          command: /build-tools-ci/scripts/set-environment
+      - pfe/set-terminus-env
       - cloudrun/init
       - setup_remote_docker
       - run:
@@ -33,18 +29,18 @@ jobs:
             gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
             --no-traffic --revision-suffix dev-${CIRCLE_SHA1:0:7} \
-            --update-env-vars BACKEND_URL=${DEV_SITE_URL}
+            --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
       - run:
           name: Update traffic labels
           command: | 
             gcloud beta run services update-traffic ${TERMINUS_SITE} \
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-            --update-tags dev-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-dev-${CIRCLE_SHA1:0:7}
+            --update-tags ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
       - run:
           name: Test deployed service
           command: | 
             GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
-            GCP_ENDPOINT=https://dev-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
+            GCP_ENDPOINT=https://${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
             curl -s $GCP_ENDPOINT
             echo ${GCP_ENDPOINT} is ready 
               
