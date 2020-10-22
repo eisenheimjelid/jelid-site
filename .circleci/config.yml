@@ -57,6 +57,7 @@ jobs:
       #       echo ${GCP_ENDPOINT} is ready
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> $BASH_ENV
       
+      - run: cp $BASH_ENV /tmp/new-env-vars
       - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/new-env-vars
           
 
