@@ -67,27 +67,45 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
+      # - run:
+      #     name: Derive additional environment from previous step
+      #     command: |
+      #       cat /tmp/persist-vars >> $BASH_ENV
+      # - run:
+      #     name: Derive additional environment variables
+      #     command: /build-tools-ci/scripts/set-environment
+      # - run:
+      #     name: Authenticate with Terminus
+      #     command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
+      # - run:
+      #     name: Setting secret in env to read with bridge mode
+      #     command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
+      - gcp-cli/install:
+          version: "315.0.0"
+      - gcp-cli/initialize
       - run:
-          name: Derive additional environment from previous step
           command: |
-            cat /tmp/persist-vars >> $BASH_ENV
-      - run:
-          name: Derive additional environment variables
-          command: /build-tools-ci/scripts/set-environment
+            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+            gcloud components install beta && gcloud components update
       - run:
           name: Authenticate with Terminus
           command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
       - run:
-          name: Setting secret in env to read with bridge mode
-          command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
+          name: Get pantheon SHA
+          command: |
+            export PANTHEON_REMOTE=$(terminus connection:info $TERMINUS_SITE.$TERMINUS_ENV --field=git_url)
+            export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
+            echo $PANTHEON_SHA1
+            # echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> bash_env.txt
               
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      - pantheon/push
-      - frontend_build_and_deploy
-      - connecting_node_bridge:
-          requires: 
-            - pantheon/push
-            - frontend_build_and_deploy
+      - connecting_node_bridge
+      # - pantheon/push
+      # - frontend_build_and_deploy
+      # - connecting_node_bridge:
+      #     requires: 
+      #       - pantheon/push
+      #       - frontend_build_and_deploy
       
