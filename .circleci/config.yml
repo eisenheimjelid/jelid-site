@@ -7,13 +7,17 @@ orbs:
 jobs:
   frontend_build_and_deploy:
     docker:
-      - image: 'octahedroid/docker-static-build-tools'
+      - image: quay.io/pantheon-public/build-tools-ci:6.x
     steps:
       - checkout
+      - gcp-cli/install
+      - gcp-cli/initialize
+      - run:
+          command: gcloud components install beta && gcloud components update
+          name: Prep Cloud Run components
       - run:
           name: Derive additional environment variables
           command: /build-tools-ci/scripts/set-environment
-      - gcp-cli/initialize
       - setup_remote_docker
       - run:
           name: Authenticate docker registry
