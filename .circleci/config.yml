@@ -73,7 +73,7 @@ jobs:
           at: /tmp
       - run: cat /tmp/new-env-vars >> $BASH_ENV
       - run: source $BASH_ENV
-      - run: printenv
+      - run: echo $GCP_ENDPOINT
 
       # - run: source $BASH_ENV
       # - run:
