@@ -57,10 +57,8 @@ jobs:
       #       echo ${GCP_ENDPOINT} is ready
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> $BASH_ENV
       
-      - run: cp $BASH_ENV /tmp/new-env-vars
       - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/new-env-vars
           
-
       - persist_to_workspace:
           root: /tmp
           paths:
@@ -75,7 +73,9 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      - run: cat /tmp/new-env-vars
+      - run: cat /tmp/new-env-vars >> $BASH_ENV
+      - run: echo $BASH_ENV
+
       # - run: source $BASH_ENV
       # - run:
       #     name: echo endpoint
