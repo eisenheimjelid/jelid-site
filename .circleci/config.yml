@@ -36,7 +36,7 @@ jobs:
           command: | 
             gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-            --no-traffic --revision-suffix dev-${CIRCLE_SHA1:0:7} \
+            --no-traffic --revision-suffix ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7} \
             --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
       - run:
           name: Update traffic labels
@@ -80,9 +80,6 @@ jobs:
       - run:
           name: Setting secret in env to read with bridge mode
           command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
-    
-      
-      
               
 workflows:
   build_and_deploy_node_bridge:
