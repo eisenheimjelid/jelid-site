@@ -56,12 +56,11 @@ jobs:
       #       curl -s $GCP_ENDPOINT
       #       echo ${GCP_ENDPOINT} is ready
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> /tmp/persist-vars
-      # - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/persist-vars
-      - run: echo "export GCP_ENDPOINT=FOO" >> $BASH_ENV
-      # - persist_to_workspace:
-      #     root: /tmp
-      #     paths:
-      #       - persist-vars
+      - run: echo "export GCP_ENDPOINT=FOO" >> /tmp/persist-vars
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - persist-vars
 
 
   connecting_node_bridge:
@@ -72,7 +71,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      # - run: cat /tmp/persist-vars >> $BASH_ENV
+      - run: cat /tmp/persist-vars >> $BASH_ENV
       - run: source $BASH_ENV
       - run: echo $GCP_ENDPOINT
 
