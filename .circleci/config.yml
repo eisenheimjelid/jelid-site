@@ -66,7 +66,7 @@ jobs:
           command: /build-tools-ci/scripts/set-environment
       - run:
           name: Setting secret in env to read with bridge mode
-          command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} foo bar
+          command: terminus secrets:set wordpress-frontity-bridge-demo.dev foo bar
     
       
       
