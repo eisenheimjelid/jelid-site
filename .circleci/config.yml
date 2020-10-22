@@ -87,7 +87,7 @@ jobs:
             if [ ${TERMINUS_ENV} = "dev" ] ; then
               gcloud beta run services update-traffic ${TERMINUS_SITE} \
               --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-              --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-live-${CIRCLE_SHA1:0:7}
+              --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-test-${CIRCLE_SHA1:0:7}
 
               gcloud beta run services update-traffic ${TERMINUS_SITE} \
               --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
