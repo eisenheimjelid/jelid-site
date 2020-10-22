@@ -64,8 +64,6 @@ jobs:
   connecting_node_bridge:
     docker:
       - image: quay.io/pantheon-public/build-tools-ci:6.x
-      # - image: cimg/base:2020.10
-      
     steps:
       - attach_workspace:
           at: /tmp
@@ -73,20 +71,15 @@ jobs:
           name: Derive additional environment from previous step
           command: |
             cat /tmp/persist-vars >> $BASH_ENV
-    
-      # - run: source $BASH_ENV
       - run:
-          name: echo endpoint
-          command: echo $GCP_ENDPOINT
-      # - run:
-      #     name: Derive additional environment variables
-      #     command: /build-tools-ci/scripts/set-environment
-      # - run:
-      #     name: Authenticate with Terminus
-      #     command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
-      # - run:
-      #     name: Setting secret in env to read with bridge mode
-      #     command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app
+          name: Derive additional environment variables
+          command: /build-tools-ci/scripts/set-environment
+      - run:
+          name: Authenticate with Terminus
+          command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
+      - run:
+          name: Setting secret in env to read with bridge mode
+          command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
     
       
       
@@ -94,10 +87,10 @@ jobs:
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      # - pantheon/push
+      - pantheon/push
       - frontend_build_and_deploy
       - connecting_node_bridge:
           requires: 
-            # - pantheon/push
+            - pantheon/push
             - frontend_build_and_deploy
       
