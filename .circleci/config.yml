@@ -13,7 +13,9 @@ jobs:
       - gcp-cli/install
       - gcp-cli/initialize
       - run:
-          command: gcloud components install beta && gcloud components update
+          command: |
+            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+            gcloud components install beta && gcloud components update
           name: Prep Cloud Run components
       - run:
           name: Derive additional environment variables
