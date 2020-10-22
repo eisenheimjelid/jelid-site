@@ -11,6 +11,10 @@
  *
  * @var bool
  */
+echo "<pre>";
+var_dump($_ENV);
+echo "</pre>";
+
 define( 'WP_USE_THEMES', true );
 
 /** Loads the WordPress Environment and Template */
