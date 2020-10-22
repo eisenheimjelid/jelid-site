@@ -61,9 +61,9 @@ jobs:
       #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> $BASH_ENV
       
       - run: 
-        command: |
-          cp /tmp/workspace/bash_env.txt $BASH_ENV
-          source $BASH_ENV
+          command: |
+            cp /tmp/workspace/bash_env.txt $BASH_ENV
+            source $BASH_ENV
           
 
       - persist_to_workspace:
