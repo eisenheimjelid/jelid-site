@@ -7,11 +7,11 @@
 /*PANTHEON connnection*/
 
 if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
-  $secrets_file = WP_CONTENT_DIR . '/uploads/private/secrets.json';
+  $secrets_file_path = WP_CONTENT_DIR . '/uploads/private/secrets.json';
+  $secrets_file =  file_get_contents( $secrets_file_path );
   if ( $secrets_file ) {
-		$json_data = json_decode( $secrets_file, true );
+    $json_data = json_decode( $secrets_file, true );
     $frontity_server = $json_data['frontend_url'] ? $json_data['frontend_url'] : false;
-    echo $frontity_server;
 	}
 }
 else{
