@@ -71,7 +71,7 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      - run: cat /tmp/new-env-vars >> $BASH_ENV
+      - run: cat /tmp/persist-vars >> $BASH_ENV
       - run: source $BASH_ENV
       - run: echo $GCP_ENDPOINT
 
