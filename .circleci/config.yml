@@ -38,23 +38,27 @@ jobs:
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
             --no-traffic --revision-suffix ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7} \
             --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
-      - run:
-          name: Update traffic labels
-          command: | 
-            gcloud beta run services update-traffic ${TERMINUS_SITE} \
-            --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-            --update-tags ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
 
-            gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
+            if [ ${TERMINUS_ENV} = "dev" ] ; then
+              echo "Deploy test and live revisions"
+            fi
+      # - run:
+      #     name: Update traffic labels
+      #     command: | 
+      #       gcloud beta run services update-traffic ${TERMINUS_SITE} \
+      #       --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+      #       --update-tags ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
 
-      - run:
-          name: Test deployed service
-          command: | 
-            GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
-            GCP_ENDPOINT=https://${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
-            curl -s $GCP_ENDPOINT
-            echo ${GCP_ENDPOINT} is ready
-            echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> /tmp/persist-vars
+      #       gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
+
+      # - run:
+      #     name: Test deployed service
+      #     command: | 
+      #       GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
+      #       GCP_ENDPOINT=https://${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}---${GET_GCP_DEPLOY_ENDPOINT:8}
+      #       curl -s $GCP_ENDPOINT
+      #       echo ${GCP_ENDPOINT} is ready
+      #       echo "export GCP_ENDPOINT=$GCP_ENDPOINT" >> /tmp/persist-vars
       - persist_to_workspace:
           root: /tmp
           paths:
@@ -67,26 +71,13 @@ jobs:
     steps:
       - attach_workspace:
           at: /tmp
-      # - run:
-      #     name: Derive additional environment from previous step
-      #     command: |
-      #       cat /tmp/persist-vars >> $BASH_ENV
-      # - run:
-      #     name: Derive additional environment variables
-      #     command: /build-tools-ci/scripts/set-environment
-      # - run:
-      #     name: Authenticate with Terminus
-      #     command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
-      # - run:
-      #     name: Setting secret in env to read with bridge mode
-      #     command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
-      # - gcp-cli/install:
-      #     version: "315.0.0"
-      # - gcp-cli/initialize
-      # - run:
-      #     command: |
-      #       export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-      #       gcloud components install beta && gcloud components update
+      - gcp-cli/install:
+          version: "315.0.0"
+      - gcp-cli/initialize
+      - run:
+          command: |
+            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+            gcloud components install beta && gcloud components update
       - run:
           name: Derive additional environment variables
           command: /build-tools-ci/scripts/set-environment
@@ -98,17 +89,37 @@ jobs:
           command: |
             export PANTHEON_REMOTE=$(terminus connection:info $TERMINUS_SITE.$TERMINUS_ENV --field=git_url)
             export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
-            echo $PANTHEON_SHA1
-            # echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> bash_env.txt
+            echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> $BASH_ENV
+      - run:
+          name: Update traffic labels
+          command: | 
+            gcloud beta run services update-traffic ${TERMINUS_SITE} \
+            --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+            --update-tags ${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
+
+            if [ ${TERMINUS_ENV} = "dev" ] ; then
+              echo "Update tags for test and live"
+            fi
+
+            # gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
+      - run:
+          name: Test deployed service
+          command: | 
+            GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
+            GCP_ENDPOINT=https://${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}---${GET_GCP_DEPLOY_ENDPOINT:8}
+            curl -s $GCP_ENDPOINT
+            echo ${GCP_ENDPOINT} is ready
+            
               
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      - connecting_node_bridge
-      # - pantheon/push
-      # - frontend_build_and_deploy
-      # - connecting_node_bridge:
-      #     requires: 
-      #       - pantheon/push
-      #       - frontend_build_and_deploy
+      # - connecting_node_bridge
+      - pantheon/push:
+          terminus_clone_env: "dev"
+      - frontend_build_and_deploy
+      - connecting_node_bridge:
+          requires: 
+            - pantheon/push
+            - frontend_build_and_deploy
       

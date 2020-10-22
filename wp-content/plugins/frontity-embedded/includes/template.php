@@ -7,12 +7,7 @@
 /*PANTHEON connnection*/
 
 if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
-  $secrets_file_path = WP_CONTENT_DIR . '/uploads/private/secrets.json';
-  $secrets_file =  file_get_contents( $secrets_file_path );
-  if ( $secrets_file ) {
-    $json_data = json_decode( $secrets_file, true );
-    $frontity_server = $json_data['frontend_url'] ? $json_data['frontend_url'] : false;
-	}
+  $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'.$_ENV['PANTHEON_DEPLOYMENT_IDENTIFIER'].'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
 }
 else{
   $frontity_server = 'http://localhost:3000';  
