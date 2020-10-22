@@ -7,7 +7,11 @@
 /*PANTHEON connnection*/
 
 if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
-  $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'.$_ENV['PANTHEON_DEPLOYMENT_IDENTIFIER'].'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
+  if ($_ENV['PANTHEON_ENVIRONMENT'] == 'dev'){
+    $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'.$_ENV['PANTHEON_DEPLOYMENT_IDENTIFIER'].'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
+  }else{
+    $frontity_server="https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app";  
+  }
 }
 else{
   $frontity_server = 'http://localhost:3000';  

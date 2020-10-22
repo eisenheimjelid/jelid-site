@@ -38,19 +38,20 @@ jobs:
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
             --no-traffic --revision-suffix ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7} \
             --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
-            # Pantheon workflow
             
-            if [ ${TERMINUS_ENV} = "dev" ] ; then
-              gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-              --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-              --no-traffic --revision-suffix test-${CIRCLE_SHA1:0:7} \
-              --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=test
+            # Pantheon workflow (WIP)
 
-              gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-              --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-              --no-traffic --revision-suffix live-${CIRCLE_SHA1:0:7} \
-              --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=live
-            fi
+            # if [ ${TERMINUS_ENV} = "dev" ] ; then
+            #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+            #   --no-traffic --revision-suffix test-${CIRCLE_SHA1:0:7} \
+            #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=test
+
+            #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+            #   --no-traffic --revision-suffix live-${CIRCLE_SHA1:0:7} \
+            #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=live
+            # fi
 
   connecting_node_bridge:
     docker:
@@ -83,18 +84,20 @@ jobs:
             gcloud beta run services update-traffic ${TERMINUS_SITE} \
             --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
             --update-tags ${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
-            # Pantheon workflow
+            # Pantheon workflow (WIP)
             if [ ${TERMINUS_ENV} = "dev" ] ; then
-              gcloud beta run services update-traffic ${TERMINUS_SITE} \
-              --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-              --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-test-${CIRCLE_SHA1:0:7}
 
-              gcloud beta run services update-traffic ${TERMINUS_SITE} \
-              --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-              --update-tags live-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-live-${CIRCLE_SHA1:0:7}
+            #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
+            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+            #   --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-test-${CIRCLE_SHA1:0:7}
+
+            #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
+            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+            #   --update-tags live-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-live-${CIRCLE_SHA1:0:7}
+
+              gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-revisions=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=100
             fi
 
-            # gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-latest
       - run:
           name: Test deployed service
           command: | 
