@@ -80,13 +80,16 @@ jobs:
       # - run:
       #     name: Setting secret in env to read with bridge mode
       #     command: terminus secrets:set ${TERMINUS_SITE}.${TERMINUS_ENV} frontend_url ${GCP_ENDPOINT}
-      - gcp-cli/install:
-          version: "315.0.0"
-      - gcp-cli/initialize
+      # - gcp-cli/install:
+      #     version: "315.0.0"
+      # - gcp-cli/initialize
+      # - run:
+      #     command: |
+      #       export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+      #       gcloud components install beta && gcloud components update
       - run:
-          command: |
-            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-            gcloud components install beta && gcloud components update
+          name: Derive additional environment variables
+          command: /build-tools-ci/scripts/set-environment
       - run:
           name: Authenticate with Terminus
           command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
