@@ -10,9 +10,11 @@ workflows:
     jobs:
       - pantheon/push:
           terminus_clone_env: "dev"
-      - pfe/frontity-monorepo-build-and-deploy
-      - pfe/frontity-monorepo-connect-node-bridge:
+      - pfe/frontity-build-and-deploy:
+          build-directory: "frontity"
+          monorepo-config: true
+      - pfe/frontity-connect-node-bridge:
           requires: 
             - pantheon/push
-            - pfe/frontity-monorepo-build-and-deploy
+            - pfe/frontity-build-and-deploy
       
