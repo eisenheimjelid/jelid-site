@@ -23,21 +23,9 @@ const settings = {
               "/"
             ],
             [
-              "Nature",
-              "/category/nature/"
+              "Sample Page",
+              "/sample-page"
             ],
-            [
-              "Travel",
-              "/category/travel/"
-            ],
-            [
-              "Japan",
-              "/tag/japan/"
-            ],
-            [
-              "About Us",
-              "/about-us/"
-            ]
           ],
           "featured": {
             "showOnList": false,

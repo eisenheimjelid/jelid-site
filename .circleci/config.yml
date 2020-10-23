@@ -76,7 +76,12 @@ jobs:
           name: Get pantheon SHA
           command: |
             export PANTHEON_REMOTE=$(terminus connection:info $TERMINUS_SITE.$TERMINUS_ENV --field=git_url)
-            export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
+            if [ ${TERMINUS_ENV} = "dev" ] ; then
+              export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
+            else
+              export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE $TERMINUS_ENV | awk '{ print $1}')
+            fi
+            
             echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> $BASH_ENV
       - run:
           name: Update traffic labels
