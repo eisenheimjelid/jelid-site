@@ -3,113 +3,114 @@ version: 2.1
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
   gcp-cli: circleci/gcp-cli@1.8.5
+  pfe: pantheon-systems/front-end@dev:frontity-node-bridge
 
-jobs:
-  frontend_build_and_deploy:
-    docker:
-      - image: quay.io/pantheon-public/build-tools-ci:6.x
-    steps:
-      - checkout
-      - gcp-cli/install:
-          version: "315.0.0"
-      - gcp-cli/initialize
-      - run:
-          command: |
-            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-            gcloud components install beta && gcloud components update
-          name: Prep Cloud Run components
-      - run:
-          name: Derive additional environment variables
-          command: /build-tools-ci/scripts/set-environment
-      - setup_remote_docker
-      - run:
-          name: Authenticate docker registry
-          command: gcloud beta auth configure-docker ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev
-      - run:
-          name: Build and deploy docker image
-          command: | 
-            cd frontity 
-            docker build -t ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} .
-            docker push ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7}
-      - run:
-          name: Deploy to cloud run
-          command: | 
-            gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-            --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-            --no-traffic --revision-suffix ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7} \
-            --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
+# jobs:
+#   frontend_build_and_deploy:
+#     docker:
+#       - image: quay.io/pantheon-public/build-tools-ci:6.x
+#     steps:
+#       - checkout
+#       - gcp-cli/install:
+#           version: "315.0.0"
+#       - gcp-cli/initialize
+#       - run:
+#           command: |
+#             export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+#             gcloud components install beta && gcloud components update
+#           name: Prep Cloud Run components
+#       - run:
+#           name: Derive additional environment variables
+#           command: /build-tools-ci/scripts/set-environment
+#       - setup_remote_docker
+#       - run:
+#           name: Authenticate docker registry
+#           command: gcloud beta auth configure-docker ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev
+#       - run:
+#           name: Build and deploy docker image
+#           command: | 
+#             cd frontity 
+#             docker build -t ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} .
+#             docker push ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7}
+#       - run:
+#           name: Deploy to cloud run
+#           command: | 
+#             gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+#             --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+#             --no-traffic --revision-suffix ${TERMINUS_ENV}-${CIRCLE_SHA1:0:7} \
+#             --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=${TERMINUS_ENV}
             
-            # Pantheon workflow (WIP)
+#             # Pantheon workflow (WIP)
 
-            # if [ ${TERMINUS_ENV} = "dev" ] ; then
-            #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-            #   --no-traffic --revision-suffix test-${CIRCLE_SHA1:0:7} \
-            #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=test
+#             # if [ ${TERMINUS_ENV} = "dev" ] ; then
+#             #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+#             #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+#             #   --no-traffic --revision-suffix test-${CIRCLE_SHA1:0:7} \
+#             #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=test
 
-            #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
-            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
-            #   --no-traffic --revision-suffix live-${CIRCLE_SHA1:0:7} \
-            #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=live
-            # fi
+#             #   gcloud run deploy ${TERMINUS_SITE} --image ${GOOGLE_COMPUTE_ZONE}-docker.pkg.dev/${GOOGLE_PROJECT_ID}/${TERMINUS_SITE}/${TERMINUS_SITE}:${CIRCLE_SHA1:0:7} \
+#             #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed --memory 512Mi --allow-unauthenticated \
+#             #   --no-traffic --revision-suffix live-${CIRCLE_SHA1:0:7} \
+#             #   --update-env-vars BACKEND_SITE=${TERMINUS_SITE},BACKEND_ENV=live
+#             # fi
 
-  connecting_node_bridge:
-    docker:
-      - image: quay.io/pantheon-public/build-tools-ci:6.x
-    steps:
-      # - attach_workspace:
-      #     at: /tmp
-      - gcp-cli/install:
-          version: "315.0.0"
-      - gcp-cli/initialize
-      - run:
-          command: |
-            export CLOUDSDK_CORE_DISABLE_PROMPTS=1
-            gcloud components install beta && gcloud components update
-      - run:
-          name: Derive additional environment variables
-          command: /build-tools-ci/scripts/set-environment
-      - run:
-          name: Authenticate with Terminus
-          command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
-      - run:
-          name: Get pantheon SHA
-          command: |
-            export PANTHEON_REMOTE=$(terminus connection:info $TERMINUS_SITE.$TERMINUS_ENV --field=git_url)
-            if [ ${TERMINUS_ENV} = "dev" ] ; then
-              export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
-            else
-              export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE $TERMINUS_ENV | awk '{ print $1}')
-            fi
+#   connecting_node_bridge:
+#     docker:
+#       - image: quay.io/pantheon-public/build-tools-ci:6.x
+#     steps:
+#       # - attach_workspace:
+#       #     at: /tmp
+#       - gcp-cli/install:
+#           version: "315.0.0"
+#       - gcp-cli/initialize
+#       - run:
+#           command: |
+#             export CLOUDSDK_CORE_DISABLE_PROMPTS=1
+#             gcloud components install beta && gcloud components update
+#       - run:
+#           name: Derive additional environment variables
+#           command: /build-tools-ci/scripts/set-environment
+#       - run:
+#           name: Authenticate with Terminus
+#           command: terminus -n auth:login --machine-token="$TERMINUS_TOKEN"
+#       - run:
+#           name: Get pantheon SHA
+#           command: |
+#             export PANTHEON_REMOTE=$(terminus connection:info $TERMINUS_SITE.$TERMINUS_ENV --field=git_url)
+#             if [ ${TERMINUS_ENV} = "dev" ] ; then
+#               export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE HEAD | awk '{ print $1}')
+#             else
+#               export PANTHEON_SHA1=$(git ls-remote $PANTHEON_REMOTE $TERMINUS_ENV | awk '{ print $1}')
+#             fi
             
-            echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> $BASH_ENV
-      - run:
-          name: Update traffic labels
-          command: | 
-            gcloud beta run services update-traffic ${TERMINUS_SITE} \
-            --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-            --update-tags ${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
-            # Pantheon workflow (WIP)
-            if [ ${TERMINUS_ENV} = "dev" ] ; then
+#             echo "export PANTHEON_SHORT_SHA1='${PANTHEON_SHA1:0:7}'" >> $BASH_ENV
+#       - run:
+#           name: Update traffic labels
+#           command: | 
+#             gcloud beta run services update-traffic ${TERMINUS_SITE} \
+#             --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+#             --update-tags ${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}
+#             # Pantheon workflow (WIP)
+#             if [ ${TERMINUS_ENV} = "dev" ] ; then
 
-            #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
-            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-            #   --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-test-${CIRCLE_SHA1:0:7}
+#             #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
+#             #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+#             #   --update-tags test-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-test-${CIRCLE_SHA1:0:7}
 
-            #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
-            #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
-            #   --update-tags live-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-live-${CIRCLE_SHA1:0:7}
+#             #   gcloud beta run services update-traffic ${TERMINUS_SITE} \
+#             #   --region ${GOOGLE_COMPUTE_ZONE} --platform managed \
+#             #   --update-tags live-${PANTHEON_SHORT_SHA1}=${TERMINUS_SITE}-live-${CIRCLE_SHA1:0:7}
 
-              gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-revisions=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=100
-            fi
+#               gcloud run services update-traffic ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --to-revisions=${TERMINUS_SITE}-${TERMINUS_ENV}-${CIRCLE_SHA1:0:7}=100
+#             fi
 
-      - run:
-          name: Test deployed service
-          command: | 
-            GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
-            GCP_ENDPOINT=https://${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}---${GET_GCP_DEPLOY_ENDPOINT:8}
-            curl -s $GCP_ENDPOINT
-            echo ${GCP_ENDPOINT} is ready
+#       - run:
+#           name: Test deployed service
+#           command: | 
+#             GET_GCP_DEPLOY_ENDPOINT=$(gcloud beta run services describe ${TERMINUS_SITE} --platform managed --region ${GOOGLE_COMPUTE_ZONE} --format="value(status.address.url)")
+#             GCP_ENDPOINT=https://${TERMINUS_ENV}-${PANTHEON_SHORT_SHA1}---${GET_GCP_DEPLOY_ENDPOINT:8}
+#             curl -s $GCP_ENDPOINT
+#             echo ${GCP_ENDPOINT} is ready
             
               
 workflows:
@@ -117,9 +118,9 @@ workflows:
     jobs:
       - pantheon/push:
           terminus_clone_env: "dev"
-      - frontend_build_and_deploy
-      - connecting_node_bridge:
+      - pfe/frontity-monorepo-build-and-deploy
+      - pfe/frontity-monorepo-connect-node-bridge:
           requires: 
             - pantheon/push
-            - frontend_build_and_deploy
+            - pfe/frontity-monorepo-build-and-deploy
       
