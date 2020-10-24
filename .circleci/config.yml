@@ -18,12 +18,6 @@ workflows:
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting Backend Build"
                 context: "pantheon/webops-backend"
-          post-steps:
-            - pfe/gh-status:
-                state: "success"
-                target_url: $DEV_SITE_URL
-                description: "Backend deployed to pantheon"
-                context: "pantheon/webops-backend"
           terminus_clone_env: "dev"
       - pfe/frontity-build-and-deploy:
           pre-steps:
@@ -41,6 +35,11 @@ workflows:
                 target_url: $MAIN_GCP_ENDPOINT
                 description: "Frontend deployed"
                 context: "pantheon/webops-frontend"
+            - pfe/gh-status:
+                state: "success"
+                target_url: $DEV_SITE_URL
+                description: "Backend deployed to pantheon"
+                context: "pantheon/webops-backend"
           requires: 
             - pantheon/push
             - pfe/frontity-build-and-deploy
@@ -57,12 +56,6 @@ workflows:
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting Backend Build"
                 context: "pantheon/webops-backend"
-          post-steps:
-            - pfe/gh-status:
-                state: "success"
-                target_url: $DEV_SITE_URL
-                description: "Backend deployed to pantheon"
-                context: "pantheon/webops-backend"
           terminus_clone_env: "dev"
       - pfe/frontity-build-and-deploy:
           pre-steps:
@@ -73,7 +66,6 @@ workflows:
                 context: "pantheon/webops-frontend"
           build-directory: "frontity"
           monorepo-config: true
-
       - pfe/frontity-connect-node-bridge:
           post-steps:
             - pfe/gh-status:
@@ -81,6 +73,11 @@ workflows:
                 target_url: $GCP_ENDPOINT
                 description: "Frontend deployed"
                 context: "pantheon/webops-frontend"
+            - pfe/gh-status:
+                state: "success"
+                target_url: $MULTIDEV_SITE_URL
+                description: "Backend deployed to pantheon"
+                context: "pantheon/webops-backend"
           requires: 
             - pantheon/push
             - pfe/frontity-build-and-deploy
