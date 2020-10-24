@@ -2,19 +2,118 @@ version: 2.1
 
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
-  gcp-cli: circleci/gcp-cli@1.8.5
   pfe: pantheon-systems/front-end@dev:frontity-node-bridge
 
+
 workflows:
-  build_and_deploy_node_bridge:
+  build_and_deploy_main:
+    when:
+      condition:
+        equal: [ main, << pipeline.git.branch >> ]
     jobs:
       - pantheon/push:
+          pre-steps:
+            - pfe/gh-status:
+                state: "pending"
+                target_url: $CIRCLE_BUILD_URL
+                description: "Starting Backend Build"
+                context: "pantheon/webops-backend"
+          post-steps:
+            - pfe/gh-status:
+                state: "success"
+                target_url: $DEV_SITE_URL
+                description: "Backend deployed to pantheon"
+                context: "pantheon/webops-backend"
           terminus_clone_env: "dev"
       - pfe/frontity-build-and-deploy:
+          pre-steps:
+            - pfe/gh-status:
+                state: "pending"
+                target_url: $CIRCLE_BUILD_URL
+                description: "Starting Frontend Build"
+                context: "pantheon/webops-frontend"
           build-directory: "frontity"
           monorepo-config: true
       - pfe/frontity-connect-node-bridge:
+          post-steps:
+            - pfe/gh-status:
+                state: "success"
+                target_url: $MAIN_GCP_ENDPOINT
+                description: "Frontend deployed"
+                context: "pantheon/webops-frontend"
           requires: 
             - pantheon/push
             - pfe/frontity-build-and-deploy
+
+  build_and_deploy_pr:
+    unless:
+      condition:
+        equal: [ main, << pipeline.git.branch >> ]
+    jobs:
+      - pantheon/push:
+          pre-steps:
+            - pfe/gh-status:
+                state: "pending"
+                target_url: $CIRCLE_BUILD_URL
+                description: "Starting Backend Build"
+                context: "pantheon/webops-backend"
+          post-steps:
+            - pfe/gh-status:
+                state: "success"
+                target_url: $DEV_SITE_URL
+                description: "Backend deployed to pantheon"
+                context: "pantheon/webops-backend"
+          terminus_clone_env: "dev"
+      - pfe/frontity-build-and-deploy:
+          pre-steps:
+            - pfe/gh-status:
+                state: "pending"
+                target_url: $CIRCLE_BUILD_URL
+                description: "Starting Frontend Build"
+                context: "pantheon/webops-frontend"
+          build-directory: "frontity"
+          monorepo-config: true
+
+      - pfe/frontity-connect-node-bridge:
+          post-steps:
+            - pfe/gh-status:
+                state: "success"
+                target_url: $GCP_ENDPOINT
+                description: "Frontend deployed"
+                context: "pantheon/webops-frontend"
+          requires: 
+            - pantheon/push
+            - pfe/frontity-build-and-deploy
+          
+
+  # build_and_deploy_pr:
+  #   jobs:
+  #     - pfe/frontity-build-and-deploy:
+  #         pre-steps:
+  #           - pfe/gh-status:
+  #               state: "pending"
+  #               target_url: $CIRCLE_BUILD_URL
+  #               description: "Starting Preview Frontend Build"
+  #               context: "pantheon/webops"
+  #         post-steps:
+  #           - pfe/gh-status:
+  #               state: "success"
+  #               target_url: $GCP_ENDPOINT
+  #               description: "Preview Frontend deployed"
+  #               context: "pantheon/webops"
+  #         monorepo-config: false
+  #         filters:
+  #           branches:
+  #             ignore: main
+  # build_and_deploy_node_bridge:
+  #   jobs:
+  #     - pantheon/push:
+  #         terminus_clone_env: "dev"
+  #     - pfe/frontity-build-and-deploy:
+  #         build-directory: "frontity"
+  #         monorepo-config: true
+  #     - pfe/frontity-connect-node-bridge:
+  #         requires: 
+  #           - pantheon/push
+  #           - pfe/frontity-build-and-deploy
       
