@@ -4,17 +4,21 @@ orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
   pfe: pantheon-systems/front-end@dev:simpler-short-sha
 
-
 workflows:
   build_and_deploy_node_bridge:
     jobs:
       - pantheon/push:
+          resource_class: "small"
+          checkout: false
+          clone_content: true
           pre-steps:
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting Backend Build"
                 context: "pantheon/webops-backend"
+            - checkout
+            - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
           terminus_clone_env: "dev"
       - pfe/frontity-build-and-deploy:
           pre-steps:
