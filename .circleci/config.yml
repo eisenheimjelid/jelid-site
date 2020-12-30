@@ -27,31 +27,30 @@ workflows:
                 description: "Backend deployed to pantheon"
                 context: "pantheon/webops-backend" 
       - pfe/frontity-build-and-deploy:
-          pre-steps:
-          - run:
-              name: Set TERMINUS_ENV
-              command: | 
-                if [ "main" == "$CIRCLE_BRANCH" ]; then
-                  echo "main is the branch name"
-                  echo "export TERMINUS_ENV='dev'" >> $BASH_ENV
-                  # todo, get 'master out of here'
-                elif [ -n "$CI_PULL_REQUEST" ] && [ "main" != "$CIRCLE_BRANCH" ]; then
-                  echo "$CI_PULL_REQUEST"
-                  echo "PR build"
-                  echo "export TERMINUS_ENV='pr-${CI_PULL_REQUEST##*/}'" >> $BASH_ENV          
-                else
-                  echo "This orb expects to only run on pull requests and the default branch."
-                  echo "Please go to advanced settings: https://circleci.com/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/edit#advanced-settings"
-                  echo "Turn on 'Only build pull requests' option"
-                  exit 1
-                fi
-                echo "Destination for this build is: ${TERMINUS_ENV}"          
+          pre-steps:        
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting Frontend Build"
                 context: "pantheon/webops-frontend"
-                
+            - run:
+                name: Set TERMINUS_ENV
+                command: | 
+                  if [ "main" == "$CIRCLE_BRANCH" ]; then
+                    echo "main is the branch name"
+                    echo "export TERMINUS_ENV='dev'" >> $BASH_ENV
+                    # todo, get 'master out of here'
+                  elif [ -n "$CI_PULL_REQUEST" ] && [ "main" != "$CIRCLE_BRANCH" ]; then
+                    echo "$CI_PULL_REQUEST"
+                    echo "PR build"
+                    echo "export TERMINUS_ENV='pr-${CI_PULL_REQUEST##*/}'" >> $BASH_ENV          
+                  else
+                    echo "This orb expects to only run on pull requests and the default branch."
+                    echo "Please go to advanced settings: https://circleci.com/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/edit#advanced-settings"
+                    echo "Turn on 'Only build pull requests' option"
+                    exit 1
+                  fi
+                  echo "Destination for this build is: ${TERMINUS_ENV}"                  
                 
           post-steps:
             - pfe/gh-status:
