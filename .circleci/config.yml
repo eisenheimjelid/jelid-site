@@ -15,6 +15,9 @@ workflows:
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting back-end CMS build"
                 context: "pantheon/webops-backend"
+                
+                
+            # remove these two soon.    
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
           terminus_clone_env: "dev"             
