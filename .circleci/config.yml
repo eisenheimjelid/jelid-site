@@ -5,26 +5,19 @@ orbs:
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      - pfe/cms-build-and-deploy:
+      - pfe/cms-build-and-push:
+#      - pantheon/push:
+          checkout: false
+          clone_content: true
           pre-steps:
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting back-end CMS build"
                 context: "pantheon/webops-backend"
-                
-                
-                
-                
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
-            
-            
-            
-            
-            
-            
-            
+          terminus_clone_env: "dev"             
           post-steps:
             # move this step into a job param
             - pfe/gh-status:
