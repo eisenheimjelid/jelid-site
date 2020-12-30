@@ -6,4 +6,4 @@ workflows:
     jobs:
       - pfe/frontity-build-and-deploy
       - pfe/cms-build-and-push:
-          terminus_clone_env: "dev" # @todo remove this setting once the live env is working.
+          terminus_clone_env: "dev" # @todo remove this setting once the live env is working
