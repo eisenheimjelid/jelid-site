@@ -16,7 +16,7 @@ if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'la
     // (like what paths route to PHP or Node.js) and automatically set config
     // (like the value of $frontity_server that needs to be derived)
     $file = file_get_contents('./private/CIRCLE_WORKFLOW_ID.txt');
-    $CIRCLE_WORKFLOW_ID = substr($file, 0, 4);
+    $CIRCLE_WORKFLOW_ID = substr($file, 0, 8);
 
     $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'. $CIRCLE_WORKFLOW_ID .'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
   }
