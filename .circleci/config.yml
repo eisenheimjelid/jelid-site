@@ -1,42 +1,8 @@
 version: 2.1
-
 orbs:
-  pantheon: pantheon-systems/pantheon@0.5.1
-  pfe: pantheon-systems/front-end@dev:frontity-node-bridge
-
-
+  pfe: pantheon-systems/front-end@dev:decoupled-bridge-gcp-deploys
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      - pantheon/push:
-          pre-steps:
-            - pfe/gh-status:
-                state: "pending"
-                target_url: $CIRCLE_BUILD_URL
-                description: "Starting Backend Build"
-                context: "pantheon/webops-backend"
-          terminus_clone_env: "dev"
-      - pfe/frontity-build-and-deploy:
-          pre-steps:
-            - pfe/gh-status:
-                state: "pending"
-                target_url: $CIRCLE_BUILD_URL
-                description: "Starting Frontend Build"
-                context: "pantheon/webops-frontend"
-          build-directory: "frontity"
-          monorepo-config: true
-      - pfe/frontity-connect-node-bridge:
-          post-steps:
-            - pfe/gh-status:
-                state: "success"
-                target_url: $GCP_ENDPOINT
-                description: "Frontend deployed"
-                context: "pantheon/webops-frontend"
-            - pfe/gh-status:
-                state: "success"
-                target_url: $MULTIDEV_SITE_URL
-                description: "Backend deployed to pantheon"
-                context: "pantheon/webops-backend"
-          requires: 
-            - pantheon/push
-            - pfe/frontity-build-and-deploy
+      - pfe/frontity-build-and-deploy
+      - pfe/cms-push
