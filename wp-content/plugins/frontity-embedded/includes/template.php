@@ -8,13 +8,17 @@
 
 if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
   if ($_ENV['PANTHEON_ENVIRONMENT'] == 'live' || $_ENV['PANTHEON_ENVIRONMENT'] == 'test'){
-    $frontity_server="https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app";  
-  }else{
-    $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'.$_ENV['PANTHEON_DEPLOYMENT_IDENTIFIER'].'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
+    $frontity_server="https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app";
+  } else {
+    // does this need checking for whether the file exists. Yeah, probably.
+    $file = file_get_contents('./private/CIRCLE_WORKFLOW_ID.txt');
+    $CIRCLE_WORKFLOW_ID = substr($file, 0, 4);
+
+    $frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'. $CIRCLE_WORKFLOW_ID .'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
   }
 }
 else{
-  $frontity_server = 'http://localhost:3000';  
+  $frontity_server = 'http://localhost:3000';
 }
 
 /***********************************************************************/
@@ -36,7 +40,7 @@ if ( $_SERVER['REQUEST_URI'] === '/__webpack_hmr' ) {
   header( 'Location: ' . $frontity_server . '/__webpack_hmr' );
   status_header( 301 );
   exit();
-} 
+}
 
 // Build the URL to do the request to the Frontity server.
 $url = $frontity_server . $_SERVER['REQUEST_URI'];
@@ -72,7 +76,7 @@ if ( is_preview() && is_user_logged_in() ) {
 
   // Generate a token that allows to only get a specific post and its revisions.
   // You also need to have permission to 'edit_post' or 'delete_post' for that.
-  $token = Capability_Tokens::generate( 
+  $token = Capability_Tokens::generate(
     array(
       'allow_methods' => array( 'GET' ),
       'capabilities'  => $capabilities
@@ -93,7 +97,7 @@ if ( !is_wp_error( $response ) ) {
     '/\.(js|png|jpe?g|gif|svg|woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/i',
     $_SERVER['REQUEST_URI']
   );
-  
+
   // Pass through the Content-Type header.
   header( 'content-type: ' . $response['headers']['content-type'] );
 
@@ -103,16 +107,16 @@ if ( !is_wp_error( $response ) ) {
   // Override is_404 of static assets.
   if ( $isStatic && $response['response']['code'] === 200 )
     $wp_query->is_404 = false;
-  
+
   // Add the admin bar.
   if ( !$isStatic && is_admin_bar_showing() ) {
     // Divide the HTML to be able to insert things in the <head> and <body>.
     list($head, $rest) = preg_split('/(?=<\/head>)/', wp_remote_retrieve_body( $response ) );
     list($body, $end) = preg_split('/(?=<\/body>)/', $rest);
 
-    // Echo the <head>, but don't echo </head> tag yet. 
+    // Echo the <head>, but don't echo </head> tag yet.
     echo $head;
-  
+
     // TODO: Don't hardcode the dependencies, get them from $wp_scripts->registered['admin-bar']->deps.
     $scripts = [
       $wp_scripts->registered['admin-bar']->src,
@@ -132,12 +136,12 @@ if ( !is_wp_error( $response ) ) {
 
     // Echo the <body>, but don't echo the </body> tag yet.
     echo $body;
-    
+
     // Echo the admin bar HTML.
     _admin_bar_bump_cb();
     wp_admin_bar_header();
     wp_admin_bar_render();
-    
+
     // Echo the final </body> and </html> tags.
     echo $end;
   } else {
