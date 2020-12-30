@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
-  pfe: pantheon-systems/front-end@dev:simpler-short-sha
+  pfe: pantheon-systems/front-end@dev:update-tags-in-one-step
 
 workflows:
   build_and_deploy_node_bridge:
@@ -29,18 +29,3 @@ workflows:
                 context: "pantheon/webops-frontend"
           build-directory: "frontity"
           monorepo-config: true
-      - pfe/frontity-connect-node-bridge:
-          post-steps:
-            - pfe/gh-status:
-                state: "success"
-                target_url: $GCP_ENDPOINT
-                description: "Frontend deployed"
-                context: "pantheon/webops-frontend"
-            - pfe/gh-status:
-                state: "success"
-                target_url: $MULTIDEV_SITE_URL
-                description: "Backend deployed to pantheon"
-                context: "pantheon/webops-backend"
-          requires: 
-            - pantheon/push
-            - pfe/frontity-build-and-deploy
