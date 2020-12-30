@@ -3,7 +3,7 @@ version: 2.1
 
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
-  pfe: pantheon-systems/front-end@dev:set-terminus-env-with-simpler-script
+  pfe: pantheon-systems/front-end@dev:simpler-short-sha
 workflows:
   build_and_deploy_node_bridge:
     jobs:
