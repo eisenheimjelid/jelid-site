@@ -11,6 +11,10 @@ if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'la
     $frontity_server="https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app";
   } else {
     // does this need checking for whether the file exists. Yeah, probably.
+    // @todo, and just reading a plain text file probably isn't the best way to do this.
+    // @todo, think through where Decoupled Bridge should go, both manually set config
+    // (like what paths route to PHP or Node.js) and automatically set config
+    // (like the value of $frontity_server that needs to be derived)
     $file = file_get_contents('./private/CIRCLE_WORKFLOW_ID.txt');
     $CIRCLE_WORKFLOW_ID = substr($file, 0, 4);
 
