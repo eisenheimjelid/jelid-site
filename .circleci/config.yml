@@ -12,8 +12,19 @@ workflows:
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting back-end CMS build"
                 context: "pantheon/webops-backend"
+                
+                
+                
+                
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
+            
+            
+            
+            
+            
+            
+            
           post-steps:
             # move this step into a job param
             - pfe/gh-status:
