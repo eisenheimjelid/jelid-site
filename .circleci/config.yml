@@ -14,7 +14,6 @@ workflows:
                 context: "pantheon/webops-backend"
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
-          terminus_clone_env: "dev"             
           post-steps:
             # move this step into a job param
             - pfe/gh-status:
