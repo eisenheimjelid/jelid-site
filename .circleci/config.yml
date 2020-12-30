@@ -26,19 +26,3 @@ workflows:
                 description: "Back-end CMS deployed to Pantheon"
                 context: "pantheon/webops-backend" 
       - pfe/frontity-build-and-deploy:
-          pre-steps:
-            - pfe/gh-status:
-                state: "pending"
-                target_url: $CIRCLE_BUILD_URL
-                description: "Starting front-end framework build"
-                context: "pantheon/webops-frontend"                
-          post-steps:
-            # move this step into a job param          
-            - pfe/gh-status:
-                state: "success"
-                target_url: $GCP_ENDPOINT
-                description: "Front-end framework deployed"
-                context: "pantheon/webops-frontend"
-                
-          # @todo, this param should not be necessary.
-          build-directory: "frontity"
