@@ -19,7 +19,13 @@ workflows:
                 context: "pantheon/webops-backend"
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
-          terminus_clone_env: "dev"
+          terminus_clone_env: "dev"             
+          post-steps:
+            - pfe/gh-status:	
+                state: "success"	
+                target_url: $MULTIDEV_SITE_URL	
+                description: "Backend deployed to pantheon"	
+                context: "pantheon/webops-backend"  
       - pfe/frontity-build-and-deploy:
           pre-steps:
             - pfe/gh-status:
@@ -27,5 +33,12 @@ workflows:
                 target_url: $CIRCLE_BUILD_URL
                 description: "Starting Frontend Build"
                 context: "pantheon/webops-frontend"
+                
+          post-steps:
+            - pfe/gh-status:	
+                state: "success"	
+                target_url: $MULTIDEV_SITE_URL	
+                description: "Backend deployed to pantheon"	
+                context: "pantheon/webops-backend"                                
           build-directory: "frontity"
           monorepo-config: true
