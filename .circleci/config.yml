@@ -1,6 +1,5 @@
 version: 2.1
 
-
 orbs:
   pantheon: pantheon-systems/pantheon@0.5.1
   pfe: pantheon-systems/front-end@dev:decoupled-bridge2
@@ -14,7 +13,7 @@ workflows:
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
-                description: "Starting Backend Build"
+                description: "Starting back-end CMS build"
                 context: "pantheon/webops-backend"
             - checkout
             - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt           
@@ -24,21 +23,21 @@ workflows:
             - pfe/gh-status:
                 state: "success"
                 target_url: $MULTIDEV_SITE_URL
-                description: "Backend deployed to pantheon"
+                description: "Back-end CMS deployed to Pantheon"
                 context: "pantheon/webops-backend" 
       - pfe/frontity-build-and-deploy:
           pre-steps:
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
-                description: "Starting Frontend Build"
+                description: "Starting front-end framework build"
                 context: "pantheon/webops-frontend"                
           post-steps:
             # move this step into a job param          
             - pfe/gh-status:
                 state: "success"
                 target_url: $GCP_ENDPOINT
-                description: "Frontend deployed"
+                description: "Front-end framework deployed"
                 context: "pantheon/webops-frontend"
                 
           # @todo, this param should not be necessary.
