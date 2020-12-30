@@ -26,7 +26,7 @@ workflows:
                 description: "Backend deployed to pantheon"
                 context: "pantheon/webops-backend" 
       - pfe/frontity-build-and-deploy:
-          pre-steps:        
+          pre-steps:
             - pfe/gh-status:
                 state: "pending"
                 target_url: $CIRCLE_BUILD_URL
