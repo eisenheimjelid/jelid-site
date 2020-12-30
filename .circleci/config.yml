@@ -4,13 +4,6 @@ orbs:
 workflows:
   build_and_deploy_node_bridge:
     jobs:
-      - pfe/cms-build-and-push:
-          checkout: false
-          clone_content: true
-          pre-steps:
-            # remove these two soon.    
-            - checkout
-            - run: echo "${CIRCLE_WORKFLOW_ID}" > private/CIRCLE_WORKFLOW_ID.txt
-          # @todo remove this setting.
-          terminus_clone_env: "dev"
       - pfe/frontity-build-and-deploy
+      - pfe/cms-build-and-push:
+          terminus_clone_env: "dev" # @todo remove this setting once the live env is working.
