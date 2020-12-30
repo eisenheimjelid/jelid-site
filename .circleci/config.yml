@@ -25,4 +25,4 @@ workflows:
                 target_url: $MULTIDEV_SITE_URL
                 description: "Back-end CMS deployed to Pantheon"
                 context: "pantheon/webops-backend" 
-      - pfe/frontity-build-and-deploy:
+      - pfe/frontity-build-and-deploy
