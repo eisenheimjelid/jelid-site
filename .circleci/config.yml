@@ -37,5 +37,7 @@ workflows:
                 state: "success"
                 target_url: $GCP_ENDPOINT
                 description: "Frontend deployed"
-                context: "pantheon/webops-frontend"                             
+                context: "pantheon/webops-frontend"
+                
+          # @todo, this param should not be necessary.
           build-directory: "frontity"
