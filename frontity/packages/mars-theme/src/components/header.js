@@ -40,7 +40,7 @@ const Title = styled.h2`
 
 const Description = styled.h4`
   margin: 0;
-  color: #f00;
+  color: #fF0;
 `;
 
 const StyledLink = styled(Link)`
