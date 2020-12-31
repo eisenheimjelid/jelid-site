@@ -1,0 +1,26 @@
+{
+  "name": "pantheon-systems/pantheon-advanced-page-cache",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "Pantheon",
+      "email": "noreply@pantheon.io"
+    }
+  ],
+  "require-dev": {
+    "behat/behat": "^3.1",
+    "behat/mink-extension": "^2.2",
+    "behat/mink-goutte-driver": "^1.2",
+    "pantheon-systems/pantheon-wordpress-upstream-tests": "dev-master",
+    "wp-coding-standards/wpcs": "^2",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+    "phpunit/phpunit": "^7",
+    "phpcompatibility/php-compatibility": "^9.3"
+  },
+  "scripts": {
+    "lint": "@phpcs",
+    "phpcs": "vendor/bin/phpcs",
+    "phpunit": "vendor/bin/phpunit",
+    "test": "@phpunit"
+  }
+}
