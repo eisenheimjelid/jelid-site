@@ -8,8 +8,6 @@
 
 if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
   if ($_ENV['PANTHEON_ENVIRONMENT'] == 'live' || $_ENV['PANTHEON_ENVIRONMENT'] == 'test'){
-    $frontity_server="https://wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app";
-  } else {
     // does this need checking for whether the file exists. Yeah, probably.
     // @todo, and just reading a plain text file probably isn't the best way to do this.
     // @todo, think through where Decoupled Bridge should go, both manually set config
