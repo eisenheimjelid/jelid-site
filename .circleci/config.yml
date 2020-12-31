@@ -1,8 +1,29 @@
 version: 2.1
 orbs:
   pfe: pantheon-systems/front-end@dev:decoupled-bridge2
+  cypress: cypress-io/cypress@1.20.0
 workflows:
   build_and_deploy_node_bridge:
     jobs:
       - pfe/frontity-build-and-deploy
       - pfe/cms-push
+
+      - cypress/run:
+          requires:
+          - pfe/frontity-build-and-deploy
+          - pfe/cms-push
+          # store_artifacts: true
+          working_directory: tests/cypress
+
+          cache-key: >-
+            cache-{{ arch }}-{{ .Branch }}-{{ checksum "tests/cypress/package-lock.json"
+            }}
+          post-steps:
+          - store_artifacts:
+              path: tests/cypress/cypress/videos
+          - store_artifacts:
+              path: tests/cypress/cypress/screenshots
+          pre-steps:
+            - pfe/set-decoupled-bridge-env-vars
+            - run: echo 'export CYPRESS_baseUrl="https://${TERMINUS_ENV}-${TERMINUS_SITE}.pantheonsite.io/"' >> $BASH_ENV
+            - run: source $BASH_ENV
