@@ -76,6 +76,21 @@ if ( ! defined( 'WP_DEBUG' ) ) {
 /* That's all, stop editing! Happy Pressing. */
 
 
+if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'lando') {
+    // does this need checking for whether the file exists. Yeah, probably.
+    // @todo, and just reading a plain text file probably isn't the best way to do this.
+    // @todo, think through where Decoupled Bridge should go, both manually set config
+    // (like what paths route to PHP or Node.js) and automatically set config
+    // (like the value of $frontity_server that needs to be derived)
+    // @see https://github.com/pantheon-systems/wordpress-frontity-bridge-demo/issues/29	
+    $file = file_get_contents('./private/CIRCLE_WORKFLOW_ID.txt');
+    $CIRCLE_WORKFLOW_ID = substr($file, 0, 8);
+
+	$frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'. $CIRCLE_WORKFLOW_ID .'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
+	putenv("FRONTITY_SERVER=$frontity_server");
+} else {
+	$_GET['frontity_bypass'] = TRUE;
+}
 
 /** Absolute path to the WordPress directory. */
 if ( !defined('ABSPATH') )
