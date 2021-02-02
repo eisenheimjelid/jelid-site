@@ -1,4 +1,3 @@
-import React from "react";
 import { styled, keyframes, css } from "frontity";
 
 const scale = keyframes`
