@@ -1,6 +1,8 @@
 version: 2.1
 orbs:
-  pfe: pantheon-systems/front-end@dev:decoupled-bridge2
+  # @todo, switch to a SemVer tag
+  pfe: pantheon-systems/decoupled-bridge-early-access@dev:main
+
   cypress: cypress-io/cypress@1.20.0
 workflows:
   build_and_deploy_node_bridge:
