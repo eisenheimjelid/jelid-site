@@ -10,14 +10,18 @@ describe('Hello world ', function(){
       cy.wait(500);
 
       cy.visit('wp-admin/post-new.php');
-      var d = new Date();
-      var n = d.getTime();
-      const title = 'Hello World ' + n;
+      const d = new Date();
+      const n = d.getTime();
+      const quote = 'I have always been of opinion that a person who desires to be a Full Stack Developer should know either everything or nothing. Which do you know?';
+      //const quote = 'To iterate is the rarest thing in the world. Most people maintain, that is all.';
+      //const quote = "I don’t want to be at the mercy of my Kanban boards. I want to use them, to enjoy them, and to dominate them.";
+      // const quote = "I am so clever that sometimes I don’t understand a single line of what I am coding.";
+
+      const title = 'WebOpscar Wilde: ' + quote +  '(timestamp: ' + n + ')';
       cy.get('textarea#post-title-0').type(title, {force: true})
       cy.get('.editor-post-publish-button__button').click();
       cy.wait(500);
       cy.get('.editor-post-publish-panel .editor-post-publish-button__button').click();
-
       cy.get('.post-publish-panel__postpublish-buttons a').click();
 
       // #root seems like a decent proxy for "rendered through React"
