@@ -97,7 +97,7 @@ if (isset($_ENV['PANTHEON_ENVIRONMENT']) && $_ENV['PANTHEON_ENVIRONMENT'] != 'la
     $file = file_get_contents(ABSPATH . '/private/CIRCLE_WORKFLOW_ID.txt');
     $CIRCLE_WORKFLOW_ID = substr($file, 0, 8);
 
-	$frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'. $CIRCLE_WORKFLOW_ID .'---wordpress-frontity-bridge-demo-aelui2yqua-uc.a.run.app';
+	$frontity_server = 'https://'.$_ENV['PANTHEON_ENVIRONMENT'].'-'. $CIRCLE_WORKFLOW_ID .'---jelid-site-aelui2yqua-uc.a.run.app';
 	putenv("FRONTITY_SERVER=$frontity_server");
 } else {
 	$_GET['frontity_bypass'] = TRUE;
